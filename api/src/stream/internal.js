@@ -74,11 +74,14 @@ async function handleChunkedStream(streamInfo, res) {
             } else break;
         }
 
-        const size = BigInt(req.headers.get('content-length'));
+        const size = BigInt(req.headers.get('content-length') || 0);
 
         if (req.status !== 200 || !size) {
             globalThis.FORCE_RESET_INNERTUBE_PLAYER = true;
-            return cleanup();
+            // sources that don't report a content-length (e.g. the youtube
+            // cnv.cx fallback tunnel) can't be fetched in chunks, so we
+            // stream them with a plain request instead of ending empty
+            return handleGenericStream(streamInfo, res);
         }
 
         const generator = readChunks(streamInfo, size);

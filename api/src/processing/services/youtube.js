@@ -9,6 +9,7 @@ import { getCookie } from "../cookie/manager.js";
 import { createStream } from "../../stream/manage.js";
 import { getYouTubeSession } from "../helpers/youtube-session.js";
 import { getBasicInfo } from "../helpers/youtube-onesie.js";
+import { getDownloadUrl } from "../helpers/youtube-fallback.js";
 
 // https://github.com/LuanRT/YouTube.js/pull/1052
 Platform.shim.eval = async (data) => {
@@ -295,6 +296,54 @@ const fetchPost = async (yt, o) => {
     }
 }
 
+const fallbackQuality = (quality) => {
+    if (quality >= 2160) return "2160";
+    if (quality >= 1440) return "1440";
+    if (quality >= 1080) return "1080";
+    if (quality >= 720) return "720";
+    if (quality >= 480) return "480";
+    return "360";
+}
+
+// youtube sometimes bot-blocks the innertube client; as a last
+// resort try the cnv.cx/y2mate fallback for a direct merged mp4 link
+const tryFallback = async (o, quality) => {
+    const attempts = [fallbackQuality(quality), "720", "480", "360"];
+    const tried = new Set();
+
+    for (const q of attempts) {
+        if (tried.has(q)) continue;
+        tried.add(q);
+
+        try {
+            const fallback = await getDownloadUrl(o.id, { quality: q });
+            return {
+                type: "proxy",
+                urls: fallback.url,
+                filenameAttributes: {
+                    service: "youtube",
+                    id: o.id,
+                    title: fallback.title,
+                    author: fallback.author,
+                    extension: "mp4",
+                    resolution: `${q}p`,
+                    qualityLabel: `${q}p`,
+                    youtubeFormat: "h264",
+                },
+                fileMetadata: {
+                    title: fallback.title,
+                    artist: fallback.author,
+                },
+                originalRequest: { ...o, dispatcher: undefined },
+            };
+        } catch (e) {
+            console.error(`[youtube fallback] cnv.cx ${q}p failed:`, e?.message || e);
+        }
+    }
+
+    return null;
+}
+
 export default async function (o) {
     const quality = o.quality === "max" ? 9000 : Number(o.quality);
 
@@ -431,6 +480,8 @@ export default async function (o) {
     switch (playability.status) {
         case "LOGIN_REQUIRED":
             if (playability.reason.endsWith("bot")) {
+                const fallback = await tryFallback(o, quality);
+                if (fallback) return fallback;
                 lastRefreshedAt = +new Date(0);
                 return { error: "youtube.login", retry: true }
             }
@@ -447,6 +498,8 @@ export default async function (o) {
                 return { error: "fetch.rate" }
             }
             if (playability?.reason?.endsWith("bot")) {
+                const fallback = await tryFallback(o, quality);
+                if (fallback) return fallback;
                 lastRefreshedAt = +new Date(0);
                 return { error: "youtube.login", retry: true }
             }
