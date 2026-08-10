@@ -115,6 +115,10 @@ const getDirectLink = async (data, quality, subtitleLang) => {
             extension: "mp4"
         },
         bestAudio: "mp3",
+        width: match.width,
+        height: match.height,
+        duration: data.duration,
+        thumbnail: data.pictures?.[0]?.sizes?.at(-1)?.link,
     }
 }
 
@@ -179,6 +183,10 @@ const getHLS = async (configURL, obj) => {
             extension: "mp4"
         },
         bestAudio: "mp3",
+        width: bestQuality.resolution?.width,
+        height: bestQuality.resolution?.height,
+        duration: api.video?.duration,
+        thumbnail: api.video?.pictures?.sizes?.at(-1)?.link,
     }
 }
 

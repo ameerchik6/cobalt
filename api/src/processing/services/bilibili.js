@@ -95,6 +95,10 @@ async function com_download(id, partId) {
         urls: [video.baseUrl, audio.baseUrl],
         audioFilename: `${filenameBase}_audio`,
         filename: `${filenameBase}_${video.width}x${video.height}.mp4`,
+        width: video.width,
+        height: video.height,
+        duration: streamData.data.timelength ? streamData.data.timelength / 1000 : undefined,
+        thumbnail: streamData.data.pic,
     };
 }
 
@@ -129,7 +133,10 @@ async function tv_download(id) {
     return {
         urls: [video.url, audio.url],
         audioFilename: `bilibili_tv_${id}_audio`,
-        filename: `bilibili_tv_${id}.mp4`
+        filename: `bilibili_tv_${id}.mp4`,
+        width: video.width,
+        height: video.height,
+        duration: video.duration ? video.duration / 1000 : undefined,
     };
 }
 

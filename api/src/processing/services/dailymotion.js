@@ -102,6 +102,10 @@ export default async function({ id }) {
             qualityLabel: `${bestQuality.resolution.height}p`,
             extension: 'mp4'
         },
-        fileMetadata
+        fileMetadata,
+        width: bestQuality.resolution?.width,
+        height: bestQuality.resolution?.height,
+        duration: media.duration,
+        thumbnail: media.thumbnail_url,
     }
 }

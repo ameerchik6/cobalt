@@ -58,6 +58,12 @@ export const services = {
         ],
         altDomains: ["ddinstagram.com"],
     },
+    likee: {
+        patterns: [":id", "p/:id", "v/:id"],
+        subdomains: ["l", "m"],
+        tld: "video",
+        altDomains: ["likee.mobi"],
+    },
     loom: {
         patterns: ["share/:id", "embed/:id"],
     },

@@ -170,6 +170,10 @@ export default async function(obj) {
         type: "merge",
         urls: [video, audioFileLink],
         audioFilename: `reddit_${sourceId}_audio`,
-        filename: `reddit_${sourceId}.mp4`
+        filename: `reddit_${sourceId}.mp4`,
+        width: data.secure_media?.reddit_video?.width,
+        height: data.secure_media?.reddit_video?.height,
+        duration: data.secure_media?.reddit_video?.duration,
+        thumbnail: data.thumbnail,
     }
 }

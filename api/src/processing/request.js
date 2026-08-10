@@ -26,6 +26,13 @@ export function createResponse(responseType, responseData) {
             status = 400;
         }
 
+        const addMetadata = (target) => {
+            const md = responseData?.metadata;
+            if (md && Object.keys(md).length) {
+                target.metadata = md;
+            }
+        };
+
         switch (responseType) {
             case "error":
                 response = {
@@ -41,6 +48,7 @@ export function createResponse(responseType, responseData) {
                     url: responseData?.url,
                     filename: responseData?.filename
                 }
+                addMetadata(response);
                 break;
 
             case "tunnel":
@@ -48,6 +56,7 @@ export function createResponse(responseType, responseData) {
                     url: createStream(responseData),
                     filename: responseData?.filename
                 }
+                addMetadata(response);
                 break;
 
             case "local-processing":
@@ -74,6 +83,7 @@ export function createResponse(responseType, responseData) {
                     isHLS: responseData?.isHLS,
                 }
 
+                addMetadata(response);
                 if (!response.audio.format) {
                     if (response.type === "audio") {
                         // audio response without a format is invalid

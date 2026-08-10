@@ -180,5 +180,6 @@ export default async function(obj) {
         bestAudio,
         fileMetadata,
         isHLS: file.pathname.endsWith('.m3u8'),
+        duration: json.duration ? json.duration / 1000 : undefined,
     }
 }

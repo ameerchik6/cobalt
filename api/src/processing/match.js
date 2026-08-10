@@ -27,6 +27,7 @@ import rutube from "./services/rutube.js";
 import dailymotion from "./services/dailymotion.js";
 import snapchat from "./services/snapchat.js";
 import loom from "./services/loom.js";
+import likee from "./services/likee.js";
 import facebook from "./services/facebook.js";
 import bluesky from "./services/bluesky.js";
 import newgrounds from "./services/newgrounds.js";
@@ -286,6 +287,13 @@ export default async function match({ host, patternMatch, params, authType, retr
                 });
                 break;
 
+            case "likee":
+                r = await likee({
+                    id: patternMatch.id,
+                    url: params.url,
+                });
+                break;
+
             default:
                 return createResponse("error", {
                     code: "error.api.service.unsupported"
@@ -342,9 +350,10 @@ export default async function match({ host, patternMatch, params, authType, retr
             localProcessing = "preferred";
         }
 
-        return matchAction({
+        return await matchAction({
             r,
             host,
+            originalUrl: params.url?.toString?.(),
             audioFormat: params.audioFormat,
             isAudioOnly,
             isAudioMuted,

@@ -5,12 +5,14 @@ import { audioIgnore } from "./service-config.js";
 import { createStream } from "../stream/manage.js";
 import { splitFilenameExtension } from "../misc/utils.js";
 import { convertLanguageCode } from "../misc/language-codes.js";
+import { enrichMetadata } from "./helpers/ytdlp-metadata.js";
 
 const extraProcessingTypes = new Set(["merge", "remux", "mute", "audio", "gif"]);
 
-export default function({
+export default async function({
     r,
     host,
+    originalUrl,
     audioFormat,
     isAudioOnly,
     isAudioMuted,
@@ -188,6 +190,7 @@ export default function({
                 case "ok":
                 case "newgrounds":
                 case "bsky":
+                case "likee":
                     params = { type: "proxy" };
                     break;
 
@@ -283,8 +286,37 @@ export default function({
         }
     }
 
+    // enrich metadata via yt-dlp if the service didn't provide all fields
+    const needsEnrichment = !r.thumbnail || !r.width || !r.height || !r.duration;
+    if (needsEnrichment && originalUrl) {
+        // try original URL first, then service's pageUrl (for short links like pin.it)
+        const urls = [originalUrl, r.pageUrl].filter(Boolean);
+        for (const url of urls) {
+            if (r.thumbnail && r.width && r.height && r.duration) break;
+            try {
+                const enriched = await enrichMetadata(url, r);
+                r.thumbnail = r.thumbnail || enriched.thumbnail;
+                r.width = r.width || enriched.width;
+                r.height = r.height || enriched.height;
+                r.duration = r.duration || enriched.duration;
+            } catch {}
+        }
+        delete r.pageUrl;
+    }
+
+    // optional media metadata for the client (thumbnail, dimensions, duration)
+    const metadata = {};
+    if (r.thumbnail) metadata.thumbnail = r.thumbnail;
+    if (r.width) metadata.width = r.width;
+    if (r.height) metadata.height = r.height;
+    if (r.duration) metadata.duration = r.duration;
+
     return createResponse(
         responseType,
-        { ...defaultParams, ...params }
+        {
+            ...defaultParams,
+            ...params,
+            metadata: Object.keys(metadata).length ? metadata : undefined
+        }
     );
 }

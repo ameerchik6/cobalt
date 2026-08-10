@@ -57,7 +57,9 @@ export async function fetchFromGraphQL(id) {
         return {
             urls: bestQuality.url,
             isPhoto: true,
-            filename: `pinterest_${id}.${imageType}`
+            filename: `pinterest_${id}.${imageType}`,
+            width: bestQuality.width,
+            height: bestQuality.height,
         }
     }
 }
@@ -87,10 +89,15 @@ export default async function(o) {
                     .map(([, link]) => link)
                     .find(a => a.endsWith('.mp4'));
 
-    if (videoLink) return {
-        urls: videoLink,
-        filename: `pinterest_${id}.mp4`,
-        audioFilename: `pinterest_${id}_audio`
+    if (videoLink) {
+        const graphData = await fetchFromGraphQL(id);
+        return {
+            urls: videoLink,
+            filename: `pinterest_${id}.mp4`,
+            audioFilename: `pinterest_${id}_audio`,
+            thumbnail: graphData?.thumbnail,
+            pageUrl: `https://www.pinterest.com/pin/${id}/`,
+        }
     }
 
     const imageLink = [...html.matchAll(imageRegex)]
@@ -99,10 +106,16 @@ export default async function(o) {
 
     const imageType = imageLink?.endsWith(".gif") ? "gif" : "jpg"
 
-    if (imageLink) return {
-        urls: imageLink,
-        isPhoto: true,
-        filename: `pinterest_${id}.${imageType}`
+    if (imageLink) {
+        const graphData = await fetchFromGraphQL(id);
+        return {
+            urls: imageLink,
+            isPhoto: true,
+            filename: `pinterest_${id}.${imageType}`,
+            width: graphData?.width,
+            height: graphData?.height,
+            thumbnail: graphData?.thumbnail,
+        }
     }
 
     const graphResponse = await fetchFromGraphQL(id);

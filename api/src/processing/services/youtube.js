@@ -320,6 +320,10 @@ const tryFallback = async (o, quality) => {
             return {
                 type: "proxy",
                 urls: fallback.url,
+                thumbnail: fallback.thumbnail,
+                width: fallback.width,
+                height: fallback.height,
+                duration: fallback.duration,
                 filenameAttributes: {
                     service: "youtube",
                     id: o.id,
@@ -549,6 +553,10 @@ export default async function (o) {
 
     let video, audio, subtitles, dubbedLanguage,
         codec = o.codec || "h264", itag = o.itag;
+
+    // best available thumbnail (maxresdefault = highest quality, 1280x720).
+    // always landscape — the bot crops to portrait using width/height if needed.
+    const thumbnail = `https://i.ytimg.com/vi/${o.id}/maxresdefault.jpg`;
 
     if (useHLS) {
         const variants = await getHlsVariants(
@@ -796,11 +804,15 @@ export default async function (o) {
 
             cover,
             cropCover: basicInfo.author.endsWith("- Topic"),
+            thumbnail,
+            duration: basicInfo.duration,
         }
     }
 
     if (video && audio) {
         let resolution;
+        const videoWidth = useHLS ? video.resolution?.width : video.width;
+        const videoHeight = useHLS ? video.resolution?.height : video.height;
 
         if (useHLS) {
             resolution = normalizeQuality(video.resolution);
@@ -842,6 +854,10 @@ export default async function (o) {
             isHLS: useHLS,
             originalRequest,
             requestIP: innertubeRequestIp,
+            width: videoWidth,
+            height: videoHeight,
+            duration: basicInfo.duration,
+            thumbnail,
         }
     }
 

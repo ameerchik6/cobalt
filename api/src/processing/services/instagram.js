@@ -4,6 +4,15 @@ import { genericUserAgent } from "../../config.js";
 import { createStream } from "../../stream/manage.js";
 import { getCookie, updateCookie } from "../cookie/manager.js";
 
+// Instagram CDN URLs contain efg base64url JSON with duration_s
+const extractIgDuration = (url) => {
+    try {
+        const m = url?.match(/efg=([^&]+)/);
+        if (!m) return undefined;
+        return JSON.parse(Buffer.from(m[1], 'base64url').toString()).duration_s;
+    } catch { return undefined; }
+}
+
 const commonHeaders = {
     "user-agent": genericUserAgent,
     "sec-gpc": "1",
@@ -404,7 +413,11 @@ export default function instagram(obj) {
             return {
                 urls: video.url,
                 filename: `instagram_${id}.mp4`,
-                audioFilename: `instagram_${id}_audio`
+                audioFilename: `instagram_${id}_audio`,
+                width: video.width,
+                height: video.height,
+                thumbnail: data.image_versions2?.candidates?.[0]?.url,
+                duration: extractIgDuration(video.url),
             }
         } else if (data.image_versions2?.candidates) {
             return {
@@ -505,7 +518,11 @@ export default function instagram(obj) {
             return {
                 urls: video.url,
                 filename: `instagram_${id}.mp4`,
-                audioFilename: `instagram_${id}_audio`
+                audioFilename: `instagram_${id}_audio`,
+                width: video.width,
+                height: video.height,
+                thumbnail: item.image_versions2?.candidates?.[0]?.url,
+                duration: extractIgDuration(video.url),
             }
         }
 

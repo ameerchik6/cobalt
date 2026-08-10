@@ -49,9 +49,20 @@ export default async function({ id, shareType, shortLink, dispatcher }) {
 
     const baseFilename = `facebook_${id || shortLink}`;
 
+    const ogImage = html.match(/property="og:image"\s+content="([^"]+)"/);
+    const ogWidth = html.match(/property="og:video:width"\s+content="(\d+)"/);
+    const ogHeight = html.match(/property="og:video:height"\s+content="(\d+)"/);
+    const ogDuration = html.match(/property="og:video:duration"\s+content="(\d+)"/);
+
+    const unescape = (s) => s ? s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"') : undefined;
+
     return {
         urls: urls[0],
         filename: `${baseFilename}.mp4`,
         audioFilename: `${baseFilename}_audio`,
+        thumbnail: unescape(ogImage?.[1]),
+        width: ogWidth ? Number(ogWidth[1]) : undefined,
+        height: ogHeight ? Number(ogHeight[1]) : undefined,
+        duration: ogDuration ? Number(ogDuration[1]) : undefined,
     };
 }

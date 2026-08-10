@@ -85,6 +85,8 @@ export default async function (obj) {
             extension: 'mp4'
         },
         filename: `twitchclip_${clipMetadata.id}_${format.quality}p.mp4`,
-        audioFilename: `twitchclip_${clipMetadata.id}_audio`
+        audioFilename: `twitchclip_${clipMetadata.id}_audio`,
+        duration: clipMetadata.durationSeconds,
+        thumbnail: clipMetadata.thumbnailURL,
     }
 }

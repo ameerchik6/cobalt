@@ -111,6 +111,12 @@ function aliasURL(url) {
                 url = new URL(`https://www.reddit.com/video/${parts[1]}`);
             }
             break;
+
+        case "likee":
+            if (services.likee.altDomains.includes(url.hostname)) {
+                url.hostname = 'likee.video';
+            }
+            break;
     }
 
     return url;

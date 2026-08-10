@@ -129,7 +129,13 @@ export default async function(obj) {
             subtitles,
             fileMetadata,
             filename: videoFilename,
-            headers: { cookie }
+            headers: { cookie },
+            thumbnail: typeof detail.video?.cover === 'string'
+                ? detail.video.cover
+                : detail.video?.cover?.urlList?.[0],
+            width: detail.video?.width,
+            height: detail.video?.height,
+            duration: detail.video?.duration,
         }
     }
 

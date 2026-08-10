@@ -1,9 +1,9 @@
 import { fetch } from "undici";
+import { YtDlp } from "ytdlp-nodejs";
 
 // Fallback downloader for youtube, used when the innertube player
-// gets bot-blocked (youtube.login). Ported from tg_downloader_bot's
-// src/utils/utube_parser.py — y2mate.mobi + cnv.cx API returns a
-// direct merged mp4 link without requiring a youtube login.
+// gets bot-blocked (youtube.login). Uses the cnv.cx/y2mate API for the
+// download URL and yt-dlp for metadata (duration, width, height, thumbnail).
 
 const BASE_IFRAME = "https://frame.y2meta-uk.com";
 const BASE_API = "https://cnv.cx";
@@ -27,7 +27,6 @@ function extractVideoId(urlOrId) {
     const m = YT_RE.exec(urlOrId);
     if (m) return m[1];
 
-    // grab the v= query param even from protocol-less urls
     const vMatch = /[?&]v=([A-Za-z0-9_-]{11})/.exec(urlOrId);
     if (vMatch) return vMatch[1];
 
@@ -80,15 +79,29 @@ const unescapeHtml = (str) => str
 
 const sanitizeFilename = (name) => name.replace(/[<>:"/\\|?*]/g, '_');
 
-// ── main entry ────────────────────────────────────────────────────────
+// ── yt-dlp metadata ──────────────────────────────────────────────────
 
-export async function getDownloadUrl(urlOrId, { fmt = "mp4", quality = "720", fetchFn = fetch } = {}) {
-    const videoId = extractVideoId(urlOrId);
+const ytdlp = new YtDlp();
 
-    const link = (urlOrId.includes("youtube.com") || urlOrId.includes("youtu.be"))
+async function getMetadata(videoId, urlOrId) {
+    const link = urlOrId.includes("youtube.com") || urlOrId.includes("youtu.be")
         ? urlOrId
         : `https://youtu.be/${videoId}`;
 
+    const info = await ytdlp.getInfoAsync(link);
+    return {
+        title: info.title || videoId,
+        author: info.channel || info.uploader || undefined,
+        duration: info.duration || undefined,
+        width: info.width || undefined,
+        height: info.height || undefined,
+        thumbnail: info.thumbnail || `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
+    };
+}
+
+// ── cnv.cx converter ─────────────────────────────────────────────────
+
+async function getDownloadUrlFromCnv(videoId, link, { fmt, quality }) {
     // 1. visit the iframe to establish a cloudflare session
     await requestWithRetry("GET", `${BASE_IFRAME}/lolindex.php?videoId=${videoId}`, {
         headers: {
@@ -144,26 +157,35 @@ export async function getDownloadUrl(urlOrId, { fmt = "mp4", quality = "720", fe
         throw new Error(`API did not return a url: ${result.status} — ${result.msg || ''}`);
     }
 
-    const filename = result.filename || `${videoId}.${fmt}`;
-
-    // 4. fetch the title via oembed (optional)
-    let title = videoId, author;
-    try {
-        const oembed = await fetchFn(
-            `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`,
-            { signal: AbortSignal.timeout(5000) }
-        ).then(r => r.status === 200 ? r.json() : null).catch(() => null);
-
-        if (oembed) {
-            title = oembed.title || title;
-            author = oembed.author_name;
-        }
-    } catch {}
-
     return {
         url: unescapeHtml(tunnelUrl),
-        filename: sanitizeFilename(filename),
-        title,
-        author,
+        filename: sanitizeFilename(result.filename || `${videoId}.${fmt}`),
+    };
+}
+
+// ── main entry ────────────────────────────────────────────────────────
+
+export async function getDownloadUrl(urlOrId, { fmt = "mp4", quality = "720", fetchFn = fetch } = {}) {
+    const videoId = extractVideoId(urlOrId);
+
+    const link = (urlOrId.includes("youtube.com") || urlOrId.includes("youtu.be"))
+        ? urlOrId
+        : `https://youtu.be/${videoId}`;
+
+    // run cnv.cx conversion and yt-dlp metadata fetch in parallel
+    const [download, meta] = await Promise.all([
+        getDownloadUrlFromCnv(videoId, link, { fmt, quality }),
+        getMetadata(videoId, urlOrId).catch(() => ({})),
+    ]);
+
+    return {
+        url: download.url,
+        filename: download.filename,
+        title: meta.title || videoId,
+        author: meta.author,
+        duration: meta.duration,
+        width: meta.width,
+        height: meta.height,
+        thumbnail: meta.thumbnail || `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`,
     };
 }

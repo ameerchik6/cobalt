@@ -67,6 +67,9 @@ importers:
       youtubei.js:
         specifier: 17.0.1
         version: 17.0.1
+      ytdlp-nodejs:
+        specifier: ^3.4.5
+        version: 3.4.5
       zod:
         specifier: ^4.2.1
         version: 4.3.6
@@ -2455,6 +2458,11 @@ packages:
   youtubei.js@17.0.1:
     resolution: {integrity: sha512-1lO4b8UqMDzE0oh2qEGzbBOd4UYRdxn/4PdpRM7BGTHxM6ddsEsKZTu90jp8V9FHVgC2h1UirQyqoqLiKwl+Zg==}
 
+  ytdlp-nodejs@3.4.5:
+    resolution: {integrity: sha512-KPXnW2xa553mDbrCdXPnsZTPIL7b3GJcQLskpePIoNm7uqquHjJj7ha+1r8x3dwyTQ4TATvsP6K0RDnumQr0zQ==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+
   zimmerframe@1.1.2:
     resolution: {integrity: sha512-rAbqEGa8ovJy4pyBxZM70hg4pE6gDgaQ0Sl9M3enG3I0d6H4XSAM3GeNGLKnsBpuijUow064sf7ww1nutC5/3w==}
 
@@ -4657,6 +4665,8 @@ snapshots:
     dependencies:
       '@bufbuild/protobuf': 2.2.5
       meriyah: 6.1.4
+
+  ytdlp-nodejs@3.4.5: {}
 
   zimmerframe@1.1.2: {}
 

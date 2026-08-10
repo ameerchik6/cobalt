@@ -151,6 +151,10 @@ export default async function ({ ownerId, videoId, accessKey, quality, subtitleL
             resolution: `${pickedQuality}p`,
             qualityLabel: `${pickedQuality}p`,
             extension: "mp4"
-        }
+        },
+        width: video.width,
+        height: video.height,
+        duration: video.duration,
+        thumbnail: video.image?.[video.image.length - 1]?.url,
     }
 }

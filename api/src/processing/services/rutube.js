@@ -90,6 +90,10 @@ export default async function(obj) {
             qualityLabel: `${matchingQuality.resolution.height}p`,
             extension: "mp4"
         },
-        fileMetadata: fileMetadata
+        fileMetadata: fileMetadata,
+        width: matchingQuality.resolution?.width,
+        height: matchingQuality.resolution?.height,
+        duration: play.duration / 1000,
+        thumbnail: play.thumbnail_url,
     }
 }

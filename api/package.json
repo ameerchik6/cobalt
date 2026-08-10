@@ -42,6 +42,7 @@
         "undici": "^6.24.1",
         "url-pattern": "1.0.3",
         "youtubei.js": "17.0.1",
+        "ytdlp-nodejs": "^3.4.5",
         "zod": "^4.2.1"
     },
     "optionalDependencies": {
