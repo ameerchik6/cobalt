@@ -91,7 +91,7 @@ export const loadEnvs = (env = process.env) => {
             || 10,
 
         durationLimit: (env.DURATION_LIMIT && parseInt(env.DURATION_LIMIT)) || 10800,
-        streamLifespan: (env.TUNNEL_LIFESPAN && parseInt(env.TUNNEL_LIFESPAN)) || 90,
+        streamLifespan: (env.TUNNEL_LIFESPAN && parseInt(env.TUNNEL_LIFESPAN)) || 300,
 
         processingPriority: process.platform !== 'win32'
             && env.PROCESSING_PRIORITY
