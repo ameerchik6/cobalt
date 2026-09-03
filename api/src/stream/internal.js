@@ -113,8 +113,8 @@ async function handleGenericStream(streamInfo, res) {
     try {
         const fileResponse = await request(streamInfo.url, {
             headers: {
-                ...Object.fromEntries(streamInfo.headers),
                 ...getHeaders(streamInfo.service),
+                ...Object.fromEntries(streamInfo.headers),
                 host: undefined
             },
             dispatcher: streamInfo.dispatcher,
