@@ -198,6 +198,7 @@ export default function({
                 case "streamable":
                 case "snapchat":
                 case "twitch":
+                case "medal":
                     responseType = "redirect";
                     break;
             }
