@@ -31,6 +31,7 @@ import likee from "./services/likee.js";
 import facebook from "./services/facebook.js";
 import bluesky from "./services/bluesky.js";
 import newgrounds from "./services/newgrounds.js";
+import medal from "./services/medal.js";
 
 const MAX_RETRY_AMOUNT = 5;
 
@@ -262,6 +263,13 @@ export default async function match({ host, patternMatch, params, authType, retr
                 r = await loom({
                     id: patternMatch.id,
                     subtitleLang,
+                });
+                break;
+            
+            case "medal":
+                r = await medal({
+                    game: patternMatch.game,
+                    id: patternMatch.id,
                 });
                 break;
 

@@ -1,7 +1,7 @@
 import UrlPattern from "url-pattern";
 
 export const audioIgnore = new Set(["vk", "ok", "loom"]);
-export const hlsExceptions = new Set(["dailymotion", "vimeo", "rutube", "bsky", "youtube"]);
+export const hlsExceptions = new Set(["dailymotion", "vimeo", "rutube", "bsky", "youtube", "pinterest"]);
 
 export const services = {
     bilibili: {
@@ -66,6 +66,12 @@ export const services = {
     },
     loom: {
         patterns: ["share/:id", "embed/:id"],
+    },
+    medal: {
+        patterns: [
+            "games/:game/clips/:id"
+        ],
+        tld: "tv",
     },
     ok: {
         patterns: [
