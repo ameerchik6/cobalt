@@ -165,6 +165,7 @@ export const services = {
             "v/:postId.html"
         ],
         subdomains: ["vt", "vm", "m", "t", "pro"],
+        altDomains: ["tt.site"],
     },
     tumblr: {
         patterns: [

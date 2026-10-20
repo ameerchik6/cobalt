@@ -111,12 +111,19 @@ function aliasURL(url) {
                 url = new URL(`https://www.reddit.com/video/${parts[1]}`);
             }
             break;
-
         case "likee":
             if (services.likee.altDomains.includes(url.hostname)) {
                 url.hostname = 'likee.video';
             }
             break;
+
+        case "tt": {
+            const cleanHostname = url.hostname.replace(/^www\./, "");
+            if (services.tiktok.altDomains.includes(cleanHostname)) {
+                url.hostname = "tiktok.com";
+            }
+            break;
+        }
     }
 
     return url;
