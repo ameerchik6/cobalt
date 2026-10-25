@@ -32,6 +32,12 @@
 все ссылки внешние и ведут на их личные сайты или соцсети.
 </section>
 
+<section id="meowbalt">
+<SectionHeading
+    title={$t("general.meowbalt")}
+    sectionId="meowbalt"
+/>
+
 мяубальт — это шустрый маскот кобальта, очень выразительный кот, который любит
 быстрый интернет.
 
