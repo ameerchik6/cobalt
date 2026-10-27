@@ -255,7 +255,7 @@ async function fetchFromGQL(params, accessToken, dispatcher) {
     }
 
     // gifs
-    if (postData.url?.startsWith("https://i.redd.it") && postData.url?.endsWith(".gif")) {
+    if (postData.url?.startsWith("https://i.redd.it/") && postData.url?.endsWith(".gif")) {
         return {
             typeId: "redirect",
             urls: postData.url,
